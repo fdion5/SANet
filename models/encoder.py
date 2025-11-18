@@ -1,8 +1,8 @@
 import torch
 import torch.nn as nn
+from torchvision import models
 
-
-from utils import VGG
+from models.utils import VGG
 from enum import IntEnum
 
 
@@ -31,6 +31,7 @@ class Encoder(nn.Module):
         """
         [3]
         """
+        
         vgg = VGG
         
         try:
@@ -38,17 +39,17 @@ class Encoder(nn.Module):
         except FileNotFoundError as e:
             print("{0} is not a valid path for the encoder".format(path))
             raise
-        
-        
-        """
-        [2] [5]
-        """
+    
         self.relu_1_1 = nn.Sequential(*list(vgg.children())[:4])  
         self.relu_2_1 = nn.Sequential(*list(vgg.children())[4:11])  
         self.relu_3_1 = nn.Sequential(*list(vgg.children())[11:18])  
         self.relu_4_1 = nn.Sequential(*list(vgg.children())[18:31])  
         self.relu_5_1 = nn.Sequential(*list(vgg.children())[31:44])  
-        
+
+
+        """
+        [2] [5]
+        """
         #Freeze the layers. No training on them.
         for _,param in self.named_parameters():
             param.require_grad = False
@@ -57,7 +58,7 @@ class Encoder(nn.Module):
         
         
     def forward(self, x:torch.Tensor) -> list[torch.Tensor]:
-        """Compute the inference for the two layers
+        """Compute the inference for the five layers
 
         Args:
             x (torch.Tensor): image

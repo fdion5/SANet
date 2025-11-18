@@ -2,31 +2,24 @@
 
 import torch
 import torch.nn as nn
-from torchvision.utils import save_image
-from PIL import Image
 
-from utils import mean_variance_normalization, compute_mean_std as mean_var_norm, compute_mean_std
+from models.utils import mean_variance_normalization, compute_mean_std as mean_var_norm, compute_mean_std
 
-from utils import input_transforms
+from models.utils import input_transforms
 ### Encoder
-from encoder import Encoder
-from encoder import Layers as ENC_LAYERS
+from models.encoder import Encoder
+from models.encoder import Layers as ENC_LAYERS
+
 
 
 ### Transformer
-from transformer import Transformer
+from models.transformer import Transformer
 
 
 ### Decoder
-from decoder import Decoder
+from models.decoder import Decoder
 
 
-DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
-
-ENCODER_PATH:str = "vgg_normalised.pth"
-TRANSFORMER_PATH = "transformer_iter_500000.pth"
-DECODER_PATH = "decoder_iter_500000.pth"
 
 
 
@@ -120,47 +113,20 @@ class Net(nn.Module):
     def __calc_var_mean_loss(self, features: torch.Tensor, targets:torch.Tensor):
         
         std_target, mean_target = compute_mean_std(targets)
-        std_features, mean_features = compute_mean_std(targets)
-        
+        std_features, mean_features = compute_mean_std(features)
         loss = self.mse(std_features, std_target) + self.mse(mean_features, mean_target)
+        
         return loss
         
-        
-model = Net(ENCODER_PATH, TRANSFORMER_PATH, DECODER_PATH)
 
-model.eval()
+# vgg = models.vgg19(weights = "DEFAULT",progress = False).features
+# for param in vgg.parameters():
+#     param.requires_grad = False
 
-model.to(DEVICE)
-
-CONTENT_PATH    = 'input/milo_2.jpg'
-STYLE_PATH      = 'style/wave.jpg'
-NB_IT           = 1
-
-content_image = input_transforms()
-content_image = content_image(Image.open(CONTENT_PATH))
-content_image = content_image.to(DEVICE).unsqueeze(0)
-
-style_image = input_transforms()
-style_image = style_image(Image.open(STYLE_PATH))
-style_image = style_image.to(DEVICE).unsqueeze(0)
+# for layer_idx, layer in enumerate(vgg):
+#     print(layer_idx, layer)
 
 
-with torch.no_grad():
-    
-    for it in range(NB_IT):
-        
-        output = model(content_image, style_image)
-        output.clamp(0, 255) #-> Clamping the pixels
-        
-    output = output.cpu()
-    
-    name = "output/try1.jpg"
-    
-    save_image(output, name)
-    
-# params = filter(lambda x: x.requires_grad, model.parameters())
-
-# optimizer = torch.optim.Adam(params, lr=)
 
 
 

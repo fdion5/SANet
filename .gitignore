@@ -12,3 +12,13 @@ __pycache__/utils.cpython-312.pyc
 venv_SANet/
 
 venv_SANet/lib/python3.12/site-packages/__pycache__/
+
+models/__pycache__/decoder.cpython-312.pyc
+
+models/__pycache__/encoder.cpython-312.pyc
+
+models/__pycache__/SANet.cpython-312.pyc
+
+models/__pycache__/transformer.cpython-312.pyc
+
+models/__pycache__/utils.cpython-312.pyc

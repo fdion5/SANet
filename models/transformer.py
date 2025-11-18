@@ -1,10 +1,10 @@
 import torch
 import torch.nn as nn
 
-from utils import SANet as SANet_model
-from utils import Transform as Transformer_model
+from models.utils import SANet as SANet_model
+from models.utils import Transform as Transformer_model
 
-from utils import mean_variance_normalization as mean_variance_norm
+from models.utils import mean_variance_normalization as mean_variance_norm
 
 
 
