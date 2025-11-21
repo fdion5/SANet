@@ -48,8 +48,8 @@ class SANet(nn.Module):
         [4] [10]
         """
         
-        F = self.conv_f(mean_variance_norm(content))
-        G = self.conv_g(mean_variance_norm(style))
+        F = self.conv_f(mean_variance_norm(content)) #Query
+        G = self.conv_g(mean_variance_norm(style)) #Key
         H = self.conv_h(style)
         
         n, c, h, w = F.size()
@@ -63,7 +63,7 @@ class SANet(nn.Module):
         
         
         n, c, h, w = H.size()
-        H = H.view(n,-1,h*w) 
+        H = H.view(n,-1,h*w) # Value
         
         out = torch.bmm(H,S) # dot product
         out = out.view(content.size())
