@@ -1,8 +1,6 @@
 import torch
 import torch.nn as nn
 
-from models.utils import SANet as SANet_model
-from models.utils import Transform as Transformer_model
 
 from models.utils import mean_variance_normalization as mean_variance_norm
 
@@ -91,18 +89,15 @@ class Transformer(nn.Module):
         self.pad = nn.ReflectionPad2d((1, 1, 1, 1)) # Needed to keep the same nb_features after the conv2D.
         self.conv_merge = nn.Conv2d(in_channels=nb_features, out_channels=nb_features, kernel_size=3)
         
-        
+
+
         if pretrain:
-            model = Transformer_model(nb_features)
             try:
-                model.load_state_dict(torch.load(path))
+                self.load_state_dict(torch.load(path, weights_only=True,map_location=torch.device('cpu')))
             except FileNotFoundError:
                 print("{0} is not a valid path for the transformer".format(path))
                 raise
             
-            self.sanet_4_1 = SANet(pretrain=True, model = model.sanet4_1)
-            self.sanet_5_1 = SANet(pretrain=True, model = model.sanet5_1)
-            self.conv_merge = model.merge_conv
                 
                 
                 

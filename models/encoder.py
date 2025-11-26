@@ -52,7 +52,7 @@ class Encoder(nn.Module):
         """
         #Freeze the layers. No training on them.
         for _,param in self.named_parameters():
-            param.require_grad = False
+            param.requires_grad = False
         
         self.__layers = [self.relu_1_1, self.relu_2_1,self.relu_3_1, self.relu_4_1, self.relu_5_1]
         

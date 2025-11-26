@@ -3,10 +3,11 @@ import torch.nn as nn
 from torchvision import transforms
 from typing import Tuple
 
+import torch.utils.data as data
+import os 
+from PIL import Image
 
-
-
-
+import numpy as np
 
 # VGG from AdaIN. Adapted from Johnson et cie.
 
@@ -180,9 +181,82 @@ def mean_variance_normalization(features:torch.Tensor)->torch.Tensor:
     return norm_features
 
 
+###########################################################################
 
 def input_transforms():
     transform_list = []
     transform_list.append(transforms.ToTensor())
     transform = transforms.Compose(transform_list)
     return transform
+
+def train_transform():
+    transform_list = [
+        transforms.Resize(size=(512, 512)),
+        transforms.RandomCrop(256),
+        transforms.ToTensor()
+    ]
+    return transforms.Compose(transform_list)
+
+
+class FlatFolderDataset(data.Dataset):
+    def __init__(self, root, transform):
+        super(FlatFolderDataset, self).__init__()
+        self.root = root
+        self.paths = os.listdir(self.root)
+        self.transform = transform
+
+    def __getitem__(self, index):
+        path = self.paths[index]
+        img = Image.open(os.path.join(self.root, path)).convert('RGB')
+        img = self.transform(img)
+        return img
+
+    def __len__(self):
+        return len(self.paths)
+
+    
+    
+def InfiniteSampler(n):
+    i = n - 1
+    order = np.random.permutation(n)
+    while True:
+        yield order[i]
+        i += 1
+        if i >= n:
+            np.random.seed()
+            order = np.random.permutation(n)
+            i = 0
+
+
+class InfiniteSamplerWrapper(data.sampler.Sampler):
+    def __init__(self, data_source):
+        self.num_samples = len(data_source)
+
+    def __iter__(self):
+        return iter(InfiniteSampler(self.num_samples))
+
+    def __len__(self):
+        return 2 ** 31
+    
+    
+def learning_rate(optimizer, lr, decay, it):
+    
+    new_lr = lr / (1.0 + decay *it)
+    
+    for param_group in optimizer.param_groups:
+        param_group['lr'] = new_lr
+        
+        
+        
+        
+def save_model(model, optimizer):
+    
+    model.to("cpu")
+    
+    transformer_dict = model.transformer.state_dict()
+    decoder_dict = model.decoder.state_dict()
+    optimizer_dict = optimizer.state_dict()
+    
+    torch.save(transformer_dict, "tr_transformer.pth")
+    torch.save(decoder_dict, "tr_decoder.pth")
+    torch.save(optimizer_dict, "tr_optimizer.pth")

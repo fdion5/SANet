@@ -14,10 +14,9 @@ class Decoder(nn.Module):
         
         self.model = DECODER
         
-        
         if pretrain:
             try:
-                self.model.load_state_dict(torch.load(path))
+                self.load_state_dict(torch.load(path,))
             except FileNotFoundError:
                 print("{0} is not a valid path for the decoder".format(path))
                 raise

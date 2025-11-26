@@ -3,9 +3,9 @@
 import torch
 import torch.nn as nn
 
-from models.utils import mean_variance_normalization, compute_mean_std as mean_var_norm, compute_mean_std
+from models.utils import mean_variance_normalization as mean_var_norm
+from models.utils import compute_mean_std 
 
-from models.utils import input_transforms
 ### Encoder
 from models.encoder import Encoder
 from models.encoder import Layers as ENC_LAYERS
@@ -32,7 +32,9 @@ class Net(nn.Module):
         
         self.encoder = Encoder(enc_path)
         self.transformer = Transformer(trans_path, pretrain)
+        self.transformer.requires_grad = True
         self.decoder = Decoder(decoder_path, pretrain)
+        self.decoder.requires_grad = True
         
         self.mse = nn.MSELoss() 
         
@@ -86,14 +88,14 @@ class Net(nn.Module):
         I_ss = self.decoder(self.transformer(list_style[ENC_LAYERS.RELU_4_1],list_style[ENC_LAYERS.RELU_4_1],
                                       list_style[ENC_LAYERS.RELU_5_1],list_style[ENC_LAYERS.RELU_5_1]))
         
-        L_1 = self.__calc_feature_loss(I_cc, list_content, norm=False) + self.__calc_feature_loss(I_ss, list_style, norm=False)
+        L_1 = self.__calc_feature_loss(I_cc, content_feat, norm=False) + self.__calc_feature_loss(I_ss, style_feat, norm=False)
         
 
         F_cc = self.encoder(I_cc)
         F_ss = self.encoder(I_ss)
         
         L_2 = 0
-        for index in range(len(1, len(list_style))):
+        for index in range(1, len(list_style)):
             L_2 += self.__calc_feature_loss(F_cc[index], list_content[index]) + \
                 self.__calc_feature_loss(F_ss[index], list_style[index])
                 
