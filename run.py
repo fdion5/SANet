@@ -17,15 +17,15 @@ from models.utils import    input_transforms, train_transform, \
 
 
 ##################################################################
-EVAL                    = False
+EVAL                    = True
 ##################################################################
 
 
 ########################## - WEIGHTS - ##########################
 
 ENCODER_PATH            = "weights/vgg_normalised.pth"
-TRANSFORMER_PATH        = "weights/transformer_iter_500000.pth" # transformer_iter_500000 try1_transformer
-DECODER_PATH            = "weights/decoder_iter_500000.pth" #decoder_iter_500000 try1_decoder
+TRANSFORMER_PATH        = "weights/tr_transformer.pth" # transformer_iter_500000 try1_transformer
+DECODER_PATH            = "weights/tr_decoder.pth" #decoder_iter_500000 try1_decoder
 OPTIMIZER_PATH          = None
 
 ##################################################################
@@ -33,7 +33,7 @@ OPTIMIZER_PATH          = None
 
 ############################ - EVAL - ############################
 
-CONTENT_IMG_PATH        = "input/milo.jpg"
+CONTENT_IMG_PATH        = "input/chicago.jpg"
 STYLE_IMG_PATH          = "style/wave.jpg"
 NB_IT                   = 1
 OUTPUT_PATH             = "output/try.jpg"
@@ -50,7 +50,7 @@ NUM_OF_COCO_SAMPLE      = 250
 DEVICE                  = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 LEARNING_RATE           = 1e-4
-MAX_ITER                = 25
+MAX_ITER                = 200
 BATCH_SIZE              = 5
 
 CONTENT_WEIGHT          = 1.0
@@ -148,8 +148,6 @@ else:
 
     params = filter(lambda x: x.requires_grad, model.parameters())
     
-    for name, param in model.named_parameters():
-        print(name, param.requires_grad)
     optimizer = torch.optim.Adam(params, lr=LEARNING_RATE)
     if not OPTIMIZER_PATH is None:
         try:

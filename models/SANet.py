@@ -74,7 +74,6 @@ class Net(nn.Module):
         
         L_s = 0
         for index in range(1, len(list_style)):
-            print(index)
             L_s += self.__calc_var_mean_loss(list_output[index], list_style[index])
             
             
