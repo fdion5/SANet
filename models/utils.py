@@ -9,12 +9,14 @@ from PIL import Image
 
 import numpy as np
 
-# VGG from AdaIN. Adapted from Johnson et cie.
+# VGG from AdaIN. 
 
 
-VGG = nn.Sequential(
+VGG = nn.Sequential( #vgg from https://arxiv.org/abs/1409.1556 slightly modified by https://arxiv.org/abs/1703.06868 
+    #preprocess
     nn.Conv2d(3, 3, (1, 1)),
     nn.ReflectionPad2d((1, 1, 1, 1)),
+    
     nn.Conv2d(3, 64, (3, 3)),
     nn.ReLU(),  
     
@@ -73,7 +75,7 @@ VGG = nn.Sequential(
     nn.ReLU() 
 )
 
-DECODER = nn.Sequential( #same kernel_size as encoder
+DECODER = nn.Sequential( #same kernel_size as encoder https://arxiv.org/abs/1703.06868 it reflects the encoder
         nn.ReflectionPad2d((1, 1, 1, 1)),
         nn.Conv2d(512, 256, (3, 3)),
         nn.ReLU(),

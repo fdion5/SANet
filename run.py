@@ -43,13 +43,12 @@ OUTPUT_PATH             = "output/try.jpg"
 
 ########################## - TRAINING - ##########################
 
-STYLE_PATH              = "train_1"
+STYLE_PATH              = "train_1" # Needs to be already downloaded https://www.kaggle.com/competitions/painter-by-numbers . 
 CONTENT_PATH            = "/train/data"
 CONTENT_DATASET         = "coco-2017"
 NUM_OF_COCO_SAMPLE      = 250
 DEVICE                  = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-NUM_OF_WORKER           = 16
 LEARNING_RATE           = 1e-4
 MAX_ITER                = 25
 BATCH_SIZE              = 5
@@ -129,14 +128,12 @@ else:
         content_dataset,
         batch_size=BATCH_SIZE,
         sampler=InfiniteSamplerWrapper(content_dataset),
-        num_workers=NUM_OF_WORKER
     )
 
     style_loader = DataLoader(
         style_dataset,
         batch_size=BATCH_SIZE,
         sampler=InfiniteSamplerWrapper(style_dataset),
-        num_workers=NUM_OF_WORKER
     )
     
     
@@ -150,6 +147,9 @@ else:
     
 
     params = filter(lambda x: x.requires_grad, model.parameters())
+    
+    for name, param in model.named_parameters():
+        print(name, param.requires_grad)
     optimizer = torch.optim.Adam(params, lr=LEARNING_RATE)
     if not OPTIMIZER_PATH is None:
         try:

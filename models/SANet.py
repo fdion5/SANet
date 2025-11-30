@@ -55,7 +55,7 @@ class Net(nn.Module):
         """
         [11]
         """
-        list_output = self.encoder(decode_feat)
+        list_output = self.encoder.forward(decode_feat)
         
         
         ### Content loss ###
@@ -74,6 +74,7 @@ class Net(nn.Module):
         
         L_s = 0
         for index in range(1, len(list_style)):
+            print(index)
             L_s += self.__calc_var_mean_loss(list_output[index], list_style[index])
             
             
@@ -91,13 +92,13 @@ class Net(nn.Module):
         L_1 = self.__calc_feature_loss(I_cc, content_feat, norm=False) + self.__calc_feature_loss(I_ss, style_feat, norm=False)
         
 
-        F_cc = self.encoder(I_cc)
-        F_ss = self.encoder(I_ss)
+        F_cc = self.encoder.forward(I_cc)
+        F_ss = self.encoder.forward(I_ss)
         
         L_2 = 0
         for index in range(1, len(list_style)):
-            L_2 += self.__calc_feature_loss(F_cc[index], list_content[index]) + \
-                self.__calc_feature_loss(F_ss[index], list_style[index])
+            L_2 += self.__calc_feature_loss(F_cc[index], list_content[index], norm=False) + \
+                self.__calc_feature_loss(F_ss[index], list_style[index], norm=False)
                 
                 
         return L_c, L_s, L_1, L_2
