@@ -25,4 +25,8 @@ models/__pycache__/utils.cpython-312.pyc
 
 train_1.zip
 
-train_1/
+train/
+train2014/
+experiments/
+logs/
+

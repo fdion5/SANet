@@ -251,14 +251,17 @@ def learning_rate(optimizer, lr, decay, it):
         
         
         
-def save_model(model, optimizer):
-    
-    model.to("cpu")
+def save_model(model, optimizer, idx):
     
     transformer_dict = model.transformer.state_dict()
+    for key in transformer_dict.keys():
+        transformer_dict[key] = transformer_dict[key].to(torch.device('cpu'))
+    torch.save(transformer_dict, f"./experiments/tr_transformer_{idx}.pth")
+
     decoder_dict = model.decoder.state_dict()
+    for key in decoder_dict.keys():
+        decoder_dict[key] = decoder_dict[key].to(torch.device('cpu'))
+    torch.save(decoder_dict, f"./experiments/tr_decoder_{idx}.pth")
+
     optimizer_dict = optimizer.state_dict()
-    
-    torch.save(transformer_dict, "tr_transformer.pth")
-    torch.save(decoder_dict, "tr_decoder.pth")
-    torch.save(optimizer_dict, "tr_optimizer.pth")
+    torch.save(optimizer_dict, f"./experiments/tr_optimizer_{idx}.pth")
