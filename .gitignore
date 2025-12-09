@@ -24,5 +24,9 @@ models/__pycache__/transformer.cpython-312.pyc
 models/__pycache__/utils.cpython-312.pyc
 
 train_1.zip
-
 train_1/
+
+evaluation/eval_output/cezanne/*.jpg
+evaluation/eval_output/ukiyoe/*.jpg
+evaluation/eval_output/vangogh/*.jpg
+evaluation/eval_output/monet/*.jpg

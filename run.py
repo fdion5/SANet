@@ -7,29 +7,47 @@ import torch.backends.cudnn as cudnn
 from PIL import Image
 from tqdm import tqdm
 import fiftyone.zoo as foz
+from datasets import load_dataset
+import io
 
 from models.SANet import Net
-from models.utils import    input_transforms, train_transform, \
-                            FlatFolderDataset, InfiniteSamplerWrapper, learning_rate, \
-                            save_model
+from evaluation import run_lpips, run_fid
+from models.utils import input_transforms, train_transform, \
+                        FlatFolderDataset, InfiniteSamplerWrapper, learning_rate, \
+                        save_model
 
 
 
 
 ##################################################################
-EVAL                    = True
+EVAL                    = False
+RATE                    = True
+TRAIN                   = not EVAL and not RATE
 ##################################################################
-
 
 ########################## - WEIGHTS - ##########################
 
 ENCODER_PATH            = "weights/vgg_normalised.pth"
-TRANSFORMER_PATH        = "weights/tr_transformer.pth" # transformer_iter_500000 try1_transformer
-DECODER_PATH            = "weights/tr_decoder.pth" #decoder_iter_500000 try1_decoder
+#TRANSFORMER_PATH        = "weights/tr_transformer_10000.pth"
+#DECODER_PATH            = "weights/tr_decoder_10000.pth"
+TRANSFORMER_PATH        = "weights/transformer_iter_500000.pth"
+DECODER_PATH            = "weights/decoder_iter_500000.pth"
 OPTIMIZER_PATH          = None
 
 ##################################################################
 
+############################ - RATE - ############################
+
+OUTPUT_FOLDER               = "evaluation/eval_output/"
+BUILD_OUTPUT                = False
+INPUT_FOLDER_DICT           = {
+    "monet": "evaluation/eval_input/monet.parquet",
+    "cezanne": "evaluation/eval_input/cezanne.parquet",
+    "ukiyoe": "evaluation/eval_input/ukiyoe.parquet",
+    "vangogh": "evaluation/eval_input/vangogh.parquet",
+}
+
+##################################################################
 
 ############################ - EVAL - ############################
 
@@ -39,7 +57,6 @@ NB_IT                   = 1
 OUTPUT_PATH             = "output/try.jpg"
 
 ##################################################################
-
 
 ########################## - TRAINING - ##########################
 
@@ -62,8 +79,6 @@ cudnn.benchmark         = True
 
 BREAK                   = False
 ##################################################################
-
-
 
 ##################################################################
 if EVAL:
@@ -96,13 +111,48 @@ if EVAL:
         
 ##################################################################
 
+##################################################################
+elif RATE:
+    # Initialize the model
+    model = Net(ENCODER_PATH, TRANSFORMER_PATH, DECODER_PATH)
+    model.eval()
+    model.to(DEVICE)   
+
+    if BUILD_OUTPUT:
+        # Build rating dataset
+        for style in INPUT_FOLDER_DICT.keys():
+            print(f"Processing style: {style}")
+            dataset = load_dataset("parquet", data_files={'test': INPUT_FOLDER_DICT[style]}, split='test')
+            for i, data in enumerate(dataset):
+                style_bytes = data['imageA']['bytes']
+                style_image = input_transforms()
+                style_image = style_image(Image.open(io.BytesIO(style_bytes)))
+                style_image = style_image.to(DEVICE).unsqueeze(0)
+
+                content_bytes = data['imageB']['bytes']
+                content_image = input_transforms()
+                content_image = content_image(Image.open(io.BytesIO(content_bytes)))
+                content_image = content_image.to(DEVICE).unsqueeze(0)
+                
+                with torch.no_grad():
+                    output = model(content_image, style_image)
+                    output.clamp(0, 255)
+                    output = output.cpu()
+                    print(f"Saving image: {OUTPUT_FOLDER + f"{style}/" + f"{i}.jpg"}")
+                    save_image(output, OUTPUT_FOLDER + f"{style}/" + f"{i}.jpg")
+                    # raise Exception("Stop after one image for testing.")
+
+    # Run LPIPS evaluation
+    # run_lpips(INPUT_FOLDER_DICT, OUTPUT_FOLDER)
+
+    # Run FID evaluation
+    run_fid(INPUT_FOLDER_DICT, OUTPUT_FOLDER)
+        
+##################################################################
+
 
 ##################################################################
-else:
-
-    """
-        Load a Zoo dataset for the content from Zoo 
-    """
+elif TRAIN:
     
     content_path = None
     
