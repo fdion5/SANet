@@ -30,3 +30,5 @@ train2014/
 experiments/
 logs/
 
+models/__pycache__/SANet.cpython-311.pyc
+models/__pycache__/utils.cpython-311.pyc
