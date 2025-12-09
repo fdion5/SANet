@@ -143,14 +143,12 @@ if __name__ == "__main__":
             content_dataset,
             batch_size=BATCH_SIZE,
             sampler=InfiniteSamplerWrapper(content_dataset),
-            num_workers=NUM_OF_WORKER
         )
 
         style_loader = DataLoader(
             style_dataset,
             batch_size=BATCH_SIZE,
             sampler=InfiniteSamplerWrapper(style_dataset),
-            num_workers=NUM_OF_WORKER
         )
         
         content_iter = iter(content_loader)
